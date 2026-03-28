@@ -1,0 +1,26 @@
+package command;
+
+import server.ClientHandler;
+import server.Server;
+
+// Returns list of all members
+public class ListCommand implements Command{
+
+    private final Server server;
+    private final ClientHandler requester;
+    private final String clientId;
+
+    public ListCommand(Server server, ClientHandler requester, String clientId) {
+        this.server = server;
+        this.requester = requester;
+        this.clientId = clientId;
+}
+
+    @Override
+    public void execute() {
+        // Send member list back to requester / Відправляємо список назад запитувачу
+        requester.sendMessage(
+                "SYSTEM|SERVER|" + clientId + "|" + server.getMembersList()
+        );
+    }
+}
