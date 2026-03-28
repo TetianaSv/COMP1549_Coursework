@@ -29,16 +29,17 @@ public class Client {
             socket = new Socket(serverIp, serverPort);
             writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
-            Logger.getInstance().logSystem("Connected to server / Підключено до сервера: "
-                    + serverIp + ":" + serverPort);
-
             //send ID as first message
             writer.write(clientId + "\n");
             writer.flush();
 
+            Logger.getInstance().logSystem("Connected to server: "
+                    + serverIp + ":" + serverPort);
+            printHelp();
+
             //Start listener thread for incoming messages
             Thread listenerThread = new Thread(new MessageListener(socket, clientId));
-            listenerThread.setDaemon(true); // stops when main thread stops
+            listenerThread.setDaemon(true); //stops when main thread stops
             listenerThread.start();
 
             //read user input
@@ -50,8 +51,6 @@ public class Client {
     // Handles commands typed by user
     private void handleUserInput() {
         Scanner scanner = new Scanner(System.in);
-
-        printHelp();
 
         while (running && scanner.hasNextLine()) {
             String input = scanner.nextLine().trim();

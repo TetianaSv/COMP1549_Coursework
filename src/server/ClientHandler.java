@@ -71,6 +71,13 @@ public class ClientHandler implements Runnable {
                     "Failed to send to: " + clientId);
         }
     }
+    public String getClientIp() {
+            return socket.getInetAddress().getHostAddress();
+    }
+
+    public int getClientPort() {
+        return socket.getPort();
+    }
 
     // Cleanly disconnects the client
     private void disconnect() {

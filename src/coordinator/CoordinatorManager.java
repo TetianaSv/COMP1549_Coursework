@@ -62,11 +62,11 @@ public class CoordinatorManager {
         Logger.getInstance().logSystem("Ping stopped");
     }
 
-    // Скидаємо singleton при перезапуску
-    public static void resetInstance() {
-        if (instance != null) {
-            instance.stopPing();
-            instance = null;
-        }
-    }
+//    // Скидаємо singleton при перезапуску
+//    public static void resetInstance() {
+//        if (instance != null) {
+//            instance.stopPing();
+//            instance = null;
+//        }
+//    }
 }

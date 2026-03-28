@@ -63,7 +63,8 @@ public class MessageListener implements Runnable {
 
                 case "SYSTEM":
                     // System notification
-                    System.out.println("\n[SYSTEM] " + text);
+                    String displayed = text.replace("| - ", "\n  - ");
+                    System.out.println("\n[SYSTEM] " + displayed);
                     break;
 
                 case "PING":

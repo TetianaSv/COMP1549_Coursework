@@ -18,7 +18,7 @@ public class ListCommand implements Command{
 
     @Override
     public void execute() {
-        // Send member list back to requester / Відправляємо список назад запитувачу
+        // Send member list back to requester
         requester.sendMessage(
                 "SYSTEM|SERVER|" + clientId + "|" + server.getMembersList()
         );

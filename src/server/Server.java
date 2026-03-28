@@ -15,6 +15,7 @@ public class Server {
     private static final int PORT = 1234;
     private static Server instance;
     private final Map<String, ClientHandler> clients = new ConcurrentHashMap<>();
+    private final Map<String, Member> members = new ConcurrentHashMap<>();
     private String coordinatorId = null;
 
     private Server() {}
@@ -27,7 +28,6 @@ public class Server {
     }
 
     public void start() {
-        CoordinatorManager.resetInstance();
         Logger.getInstance().logSystem("Server started on port" + PORT);
         CoordinatorManager.getInstance(this).startPing();
 
@@ -46,10 +46,19 @@ public class Server {
     //Add new client
     public synchronized void addClient(String id, ClientHandler handler) {
         clients.put(id, handler);
+
+        // Save member info
+        String ip = handler.getClientIp();
+        int port = handler.getClientPort();
+
+        members.put(id, new Member(id, ip, port));
         if (coordinatorId == null) {
             //first client become a coordinator
             coordinatorId = id;
             handler.sendMessage("SYSTEM|SERVER|" + id + "|YOU ARE COORDINATOR");
+        } else {
+            // Tell new client who is coordinator
+            handler.sendMessage("SYSTEM|SERVER|" + id + "|Current coordinator is: " + coordinatorId);
         }
 
         //Announce a new member
@@ -107,11 +116,15 @@ public class Server {
 
     //Return list of all clients
     public String getMembersList() {
-        StringBuilder sb = new StringBuilder("Members:\n");
-        for (String id : clients.keySet()) {
-            sb.append(" -").append(id);
-            if (id.equals(coordinatorId)) sb.append(" [COORDINATOR]");
-            sb.append("\n");
+        StringBuilder sb = new StringBuilder("Members:");
+        for (Map.Entry<String, Member> entry : members.entrySet()) {
+            Member m = entry.getValue();
+            sb.append("| - ").append(m.getId())
+                    .append(" ").append(m.getIp())
+                    .append(":").append(m.getPort());
+            if (m.getId().equals(coordinatorId)) {
+                sb.append(" [COORDINATOR]");
+            }
         }
         return sb.toString();
     }
@@ -119,6 +132,7 @@ public class Server {
     public String getCoordinatorId() {
         return coordinatorId;
     }
+
     public static void main(String[] args) {
         Server.getInstance().start();
     }
