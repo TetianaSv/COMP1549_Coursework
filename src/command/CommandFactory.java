@@ -16,7 +16,6 @@ public class CommandFactory {
 
         if (parts.length < 4) {
             // Return empty command for invalid messages
-            // Повертаємо порожню команду для невірних повідомлень
             return () -> handler.sendMessage(
                     "SYSTEM|SERVER|" + clientId + "|Invalid message format"
             );
@@ -33,7 +32,7 @@ public class CommandFactory {
             case "LIST":
                 return new ListCommand(server, handler, clientId);
             default:
-                // Unknown command / Невідома команда
+                // Unknown command
                 return () -> handler.sendMessage(
                         "SYSTEM|SERVER|" + clientId + "|Unknown command: " + type
                 );

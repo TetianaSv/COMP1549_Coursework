@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 public class CoordinatorManager {
     // Ping interval in seconds
     private static final int PING_INTERVAL = 60;
+    private static final int TIMEOUT = 90;
 
     private final Server server;
     private final ScheduledExecutorService scheduler;
@@ -32,41 +33,19 @@ public class CoordinatorManager {
     // Starts periodic ping to all clients
     public void startPing() {
         scheduler.scheduleAtFixedRate(() -> {
-            String coordinatorId = server.getCoordinatorId();
-
-            if (coordinatorId == null) {
-                Logger.getInstance().logSystem(
-                        "No coordinator — skipping ping"
-                );
-                return;
-            }
-
-            Logger.getInstance().logSystem(
-                    "Coordinator ping: " + coordinatorId
-            );
-
-            // Broadcast ping to all clients
-            server.broadcast(
-                    "PING|SYSTEM|null|Coordinator is: " + coordinatorId,
-                    null
-            );
-
+            // Send PING to each client
+            server.pingAllClients();
+            // Check timeouts / Перевіряємо таймаути
+            server.checkClientTimeouts(TIMEOUT);
         }, PING_INTERVAL, PING_INTERVAL, TimeUnit.SECONDS);
 
-        Logger.getInstance().logSystem("Ping started every " + PING_INTERVAL + " seconds");
+        Logger.getInstance().log("Ping started every " + PING_INTERVAL + " seconds");
     }
 
     // Stops the ping scheduler
     public void stopPing() {
         scheduler.shutdown();
-        Logger.getInstance().logSystem("Ping stopped");
+        Logger.getInstance().log("Ping stopped");
     }
 
-//    // Скидаємо singleton при перезапуску
-//    public static void resetInstance() {
-//        if (instance != null) {
-//            instance.stopPing();
-//            instance = null;
-//        }
-//    }
 }

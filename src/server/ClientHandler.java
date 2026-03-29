@@ -16,6 +16,7 @@ public class ClientHandler implements Runnable {
     private BufferedReader reader;
     private BufferedWriter writer;
     private String clientId;
+    private volatile long lastPongTime = System.currentTimeMillis();
 
     public ClientHandler (Socket socket, Server server) {
         this.socket = socket;
@@ -46,15 +47,18 @@ public class ClientHandler implements Runnable {
                 handleMessage(rawMessage);
             }
         } catch (IOException e) {
-            Logger.getInstance().logSystem("Connection lost with: " + clientId);
+            Logger.getInstance().log("Connection lost with: " + clientId);
         } finally {
             //Clean up when client disconnected
             disconnect();
         }
     }
+    //TODO continue to do this prikol
     // Routes message to correct command
     private void handleMessage(String rawMessage) {
-        Logger.getInstance().logSystem("Received: " + rawMessage);
+        if (!rawMessage.contains("PONG")) {
+            Logger.getInstance().log("Received: " + rawMessage);
+        }
 
         // Create and execute command
         Command command = commandFactory.createCommand(rawMessage, this, clientId);
@@ -67,7 +71,7 @@ public class ClientHandler implements Runnable {
             writer.write(rawMessage + "\n");
             writer.flush();
         } catch (IOException e) {
-            Logger.getInstance().logSystem(
+            Logger.getInstance().log(
                     "Failed to send to: " + clientId);
         }
     }
@@ -79,6 +83,14 @@ public class ClientHandler implements Runnable {
         return socket.getPort();
     }
 
+    // Called when PONG received / Викликається коли отримано PONG
+    public void updatePongTime() {
+        lastPongTime = System.currentTimeMillis();
+    }
+    public long getLastPongTime() {
+        return lastPongTime;
+    }
+
     // Cleanly disconnects the client
     private void disconnect() {
         try {
@@ -87,7 +99,7 @@ public class ClientHandler implements Runnable {
             }
             socket.close();
         } catch (IOException e) {
-            Logger.getInstance().logSystem("Error closing socket");
+            Logger.getInstance().log("Error closing socket");
         }
     }
 }

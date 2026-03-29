@@ -22,7 +22,7 @@ public class PrivateCommand implements Command{
     public void execute() {
         //sent to specific client
         server.sendPrivate(rawMessage, toId);
-        Logger.getInstance().logSystem(
+        Logger.getInstance().log(
                 "Private message" + fromId + "->" + toId
         );
     }

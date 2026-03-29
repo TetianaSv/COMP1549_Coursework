@@ -28,7 +28,7 @@ public class Server {
     }
 
     public void start() {
-        Logger.getInstance().logSystem("Server started on port" + PORT);
+        Logger.getInstance().log("Server started on port" + PORT);
         CoordinatorManager.getInstance(this).startPing();
 
         // Start coordinator ping
@@ -39,7 +39,7 @@ public class Server {
                 new Thread(handler).start();
             }
         } catch (IOException e) {
-            Logger.getInstance().logSystem("System error: " + e.getMessage());
+            Logger.getInstance().log("System error: " + e.getMessage());
         }
     }
 
@@ -67,7 +67,7 @@ public class Server {
     //delete client after log out
     public synchronized void removeClient(String id) {
         clients.remove(id);
-        Logger.getInstance().logSystem(id + " logged out");
+        Logger.getInstance().log(id + " logged out");
 
         broadcast("SYSTEM|SERVER|null|" + id + " logged out", null);
 
@@ -82,7 +82,7 @@ public class Server {
     private void electNewCoordinator() {
         if (clients.isEmpty()) {
             coordinatorId = null;
-            Logger.getInstance().logSystem("Group is empty, there is new coordinator");
+            Logger.getInstance().log("Group is empty, there is new coordinator");
             return;
         }
 
@@ -92,7 +92,7 @@ public class Server {
 
         clients.get(newCoordinatorId).sendMessage("SYSTEM|SERVER|NULL|" + newCoordinatorId + " IS NEW COORDINATOR");
         broadcast("SYSTEM|SERVER|null|New coordinator: " + newCoordinatorId, null);
-        Logger.getInstance().logSystem("New coordinator: " + newCoordinatorId);
+        Logger.getInstance().log("New coordinator: " + newCoordinatorId);
     }
 
     //Send a message everyone except sender
@@ -110,7 +110,7 @@ public class Server {
         if (handler != null) {
             handler.sendMessage(rawMessage);
         } else {
-            Logger.getInstance().logSystem("Client " + toId + "not found");
+            Logger.getInstance().log("Client " + toId + "not found");
         }
     }
 
@@ -135,5 +135,34 @@ public class Server {
 
     public static void main(String[] args) {
         Server.getInstance().start();
+    }
+
+    // Send PING to all clients
+    public void pingAllClients() {
+        for (Map.Entry<String, ClientHandler> entry : clients.entrySet()) {
+            entry.getValue().sendMessage(
+                    "PING|SERVER|" + entry.getKey() + "|ping"
+            );
+        }
+    }
+
+    // Check if any client timed out
+    public void checkClientTimeouts(int timeoutSeconds) {
+        long now = System.currentTimeMillis();
+        long timeoutMs = timeoutSeconds * 1000L;
+
+        for (Map.Entry<String, ClientHandler> entry : clients.entrySet()) {
+            ClientHandler handler = entry.getValue();
+            long timeSinceLastPong = now - handler.getLastPongTime();
+
+            if (timeSinceLastPong > timeoutMs) {
+                Logger.getInstance().log(
+                        entry.getKey() + " timed out — disconnecting / відключаємо по таймауту"
+                );
+                // Force disconnect
+                handler.sendMessage("SYSTEM|SERVER|" + entry.getKey() + "|You were disconnected due to timeout");
+                removeClient(entry.getKey());
+            }
+        }
     }
 }

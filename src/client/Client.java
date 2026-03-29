@@ -33,19 +33,19 @@ public class Client {
             writer.write(clientId + "\n");
             writer.flush();
 
-            Logger.getInstance().logSystem("Connected to server: "
+            Logger.getInstance().log("Connected to server: "
                     + serverIp + ":" + serverPort);
             printHelp();
 
             //Start listener thread for incoming messages
-            Thread listenerThread = new Thread(new MessageListener(socket, clientId));
+            Thread listenerThread = new Thread(new MessageListener(socket, clientId, writer));
             listenerThread.setDaemon(true); //stops when main thread stops
             listenerThread.start();
 
             //read user input
             handleUserInput();
         } catch (IOException e) {
-            Logger.getInstance().logSystem("Cannot connect to server" + e.getMessage());
+            Logger.getInstance().log("Cannot connect to server" + e.getMessage());
         }
     }
     // Handles commands typed by user
@@ -90,7 +90,7 @@ public class Client {
             writer.write(rawMessage + "\n");
             writer.flush();
         } catch (IOException e) {
-            Logger.getInstance().logSystem("Failed to send / Не вдалось відправити: "
+            Logger.getInstance().log("Failed to send: "
                     + e.getMessage());
         }
     }
@@ -108,7 +108,7 @@ public class Client {
         try {
             socket.close();
         } catch (IOException e) {
-            Logger.getInstance().logSystem("Error disconnecting");
+            Logger.getInstance().log("Error disconnecting");
         }
     }
 

@@ -10,10 +10,12 @@ public class MessageListener implements Runnable {
 
     private final Socket socket;
     private final String clientId;
+    private BufferedWriter writer;
 
-    public MessageListener(Socket socket, String clientId) {
+    public MessageListener(Socket socket, String clientId, BufferedWriter writer) {
         this.socket = socket;
         this.clientId = clientId;
+        this.writer = writer;
     }
 
     @Override
@@ -31,7 +33,7 @@ public class MessageListener implements Runnable {
             }
         } catch (IOException e) {
             // Connection was closed — normal when /quit is used
-            Logger.getInstance().logSystem(
+            Logger.getInstance().log(
                     "Disconnected from server"
             );
         }
@@ -68,7 +70,13 @@ public class MessageListener implements Runnable {
                     break;
 
                 case "PING":
-                    System.out.println("\n[PING] " + text);
+                    // Silently respond with PONG
+                    try {
+                        writer.write("PONG|" + clientId + "|SERVER|pong\n");
+                        writer.flush();
+                    } catch (IOException e) {
+                        Logger.getInstance().log("Cannot send PONG");
+                    }
                     break;
 
                 default:
