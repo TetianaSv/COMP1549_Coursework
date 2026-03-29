@@ -1,6 +1,5 @@
 package server;
 
-import model.Member;
 import util.Logger;
 
 import java.io.IOException;
@@ -15,7 +14,6 @@ public class Server {
     private static final int PORT = 1234;
     private static Server instance;
     private final Map<String, ClientHandler> clients = new ConcurrentHashMap<>();
-    private final Map<String, Member> members = new ConcurrentHashMap<>();
     private String coordinatorId = null;
 
     private Server() {}
@@ -47,11 +45,6 @@ public class Server {
     public synchronized void addClient(String id, ClientHandler handler) {
         clients.put(id, handler);
 
-        // Save member info
-        String ip = handler.getClientIp();
-        int port = handler.getClientPort();
-
-        members.put(id, new Member(id, ip, port));
         if (coordinatorId == null) {
             //first client become a coordinator
             coordinatorId = id;
@@ -67,8 +60,8 @@ public class Server {
     //delete client after log out
     public synchronized void removeClient(String id) {
         clients.remove(id);
-        Logger.getInstance().log(id + " logged out");
 
+        Logger.getInstance().log(id + " logged out");
         broadcast("SYSTEM|SERVER|null|" + id + " logged out", null);
 
         //If coordinator is gone
@@ -117,12 +110,15 @@ public class Server {
     //Return list of all clients
     public String getMembersList() {
         StringBuilder sb = new StringBuilder("Members:");
-        for (Map.Entry<String, Member> entry : members.entrySet()) {
-            Member m = entry.getValue();
-            sb.append("| - ").append(m.getId())
-                    .append(" ").append(m.getIp())
-                    .append(":").append(m.getPort());
-            if (m.getId().equals(coordinatorId)) {
+        for (Map.Entry<String, ClientHandler> entry : clients.entrySet()) {
+            String id = entry.getKey();
+            ClientHandler handler = entry.getValue();
+
+            sb.append(" | - ").append(id)
+                    .append(" ").append(handler.getClientIp())
+                    .append(":").append(handler.getClientPort());
+
+            if (id.equals(coordinatorId)) {
                 sb.append(" [COORDINATOR]");
             }
         }
@@ -151,16 +147,13 @@ public class Server {
         long now = System.currentTimeMillis();
         long timeoutMs = timeoutSeconds * 1000L;
 
+        // collect timed out clients first
         for (Map.Entry<String, ClientHandler> entry : clients.entrySet()) {
             ClientHandler handler = entry.getValue();
             long timeSinceLastPong = now - handler.getLastPongTime();
 
             if (timeSinceLastPong > timeoutMs) {
-                Logger.getInstance().log(
-                        entry.getKey() + " timed out — disconnecting / відключаємо по таймауту"
-                );
-                // Force disconnect
-                handler.sendMessage("SYSTEM|SERVER|" + entry.getKey() + "|You were disconnected due to timeout");
+                Logger.getInstance().log(entry.getKey() + " timed out");
                 removeClient(entry.getKey());
             }
         }

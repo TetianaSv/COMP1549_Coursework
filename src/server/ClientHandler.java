@@ -25,6 +25,7 @@ public class ClientHandler implements Runnable {
     }
 
     @Override
+
     public void run() {
         try {
             //Initialize input/output stream
@@ -53,13 +54,13 @@ public class ClientHandler implements Runnable {
             disconnect();
         }
     }
-    //TODO continue to do this prikol
     // Routes message to correct command
     private void handleMessage(String rawMessage) {
-        if (!rawMessage.contains("PONG")) {
-            Logger.getInstance().log("Received: " + rawMessage);
-        }
 
+        if (rawMessage.startsWith("PONG")) {
+            updatePongTime();
+            return;
+        }
         // Create and execute command
         Command command = commandFactory.createCommand(rawMessage, this, clientId);
         command.execute();
@@ -83,7 +84,7 @@ public class ClientHandler implements Runnable {
         return socket.getPort();
     }
 
-    // Called when PONG received / Викликається коли отримано PONG
+    // Called when PONG received
     public void updatePongTime() {
         lastPongTime = System.currentTimeMillis();
     }

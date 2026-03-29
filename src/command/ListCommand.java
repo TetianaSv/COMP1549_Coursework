@@ -18,9 +18,10 @@ public class ListCommand implements Command{
 
     @Override
     public void execute() {
+        String coordinatorId = server.getCoordinatorId();
         // Send member list back to requester
         requester.sendMessage(
-                "SYSTEM|SERVER|" + clientId + "|" + server.getMembersList()
+                "SYSTEM|" + coordinatorId + "|" + clientId + "|" + server.getMembersList()
         );
     }
 }

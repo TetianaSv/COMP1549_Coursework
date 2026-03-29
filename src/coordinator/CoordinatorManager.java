@@ -10,8 +10,8 @@ import java.util.concurrent.TimeUnit;
 // Manages coordinator logic and periodic ping to all clients
 public class CoordinatorManager {
     // Ping interval in seconds
-    private static final int PING_INTERVAL = 60;
-    private static final int TIMEOUT = 90;
+    private static final int PING_INTERVAL = 20;
+    private static final int TIMEOUT = 40;
 
     private final Server server;
     private final ScheduledExecutorService scheduler;
@@ -42,10 +42,10 @@ public class CoordinatorManager {
         Logger.getInstance().log("Ping started every " + PING_INTERVAL + " seconds");
     }
 
-    // Stops the ping scheduler
-    public void stopPing() {
-        scheduler.shutdown();
-        Logger.getInstance().log("Ping stopped");
-    }
+//    // Stops the ping scheduler
+//    public void stopPing() {
+//        scheduler.shutdown();
+//        Logger.getInstance().log("Ping stopped");
+//    }
 
 }

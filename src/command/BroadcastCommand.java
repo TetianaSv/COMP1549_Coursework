@@ -20,6 +20,6 @@ public class BroadcastCommand implements Command {
     public void execute() {
         //send everyone except sender
         server.broadcast(rawMessage, fromId);
-        Logger.getInstance().log("Broadcast from" + fromId);
+//        Logger.getInstance().log("Broadcast from" + fromId);
     }
 }

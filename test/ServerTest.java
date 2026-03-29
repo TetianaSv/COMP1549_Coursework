@@ -1,30 +1,46 @@
-import model.Member;
+import command.*;
 import org.junit.jupiter.api.Test;
+import server.ClientHandler;
+import server.Server;
+import coordinator.CoordinatorManager;
+
+
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ServerTest {
-
-    // Test 1: Check Member to save data rightly
+class CommandFactoryTest {
     @Test
-    void testMemberCreation() {
-        Member member = new Member("Anna", "127.0.0.1", 1234);
+    void createsListCommand() {
+        CommandFactory factory = new CommandFactory(Server.getInstance());
 
-        assertEquals("Anna", member.getId());
-        assertEquals("127.0.0.1", member.getIp());
-        assertEquals(1234, member.getPort());
-        assertFalse(member.isCoordinator());
+        String raw = "LIST|Alice|null|list";
+
+        Command command = factory.createCommand(raw, null, "Alice");
+
+        assertTrue(command instanceof ListCommand);
     }
 
-    // Test 2: Coordinator assignment
     @Test
-    void testCoordinatorAssignment() {
-        Member member = new Member("Kateryna", "127.0.0.1", 5001);
-        assertFalse(member.isCoordinator());
+    void createsPrivateCommand() {
+        CommandFactory factory = new CommandFactory(Server.getInstance());
 
-        member.setCoordinator(true);
-        assertTrue(member.isCoordinator());
+        String raw = "PRIVATE|Alice|Bob|Hello";
 
-        member.setCoordinator(false);
-        assertFalse(member.isCoordinator());
+        Command command = factory.createCommand(raw, null, "Alice");
+
+        assertTrue(command instanceof PrivateCommand);
     }
 }
+
+class CoordinatorManagerTest {
+
+    @Test
+    void returnsSameInstance() {
+        Server server = Server.getInstance();
+
+        CoordinatorManager manager1 = CoordinatorManager.getInstance(server);
+        CoordinatorManager manager2 = CoordinatorManager.getInstance(server);
+
+        assertSame(manager1, manager2);
+    }
+}
+
