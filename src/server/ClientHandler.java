@@ -39,6 +39,12 @@ public class ClientHandler implements Runnable {
                 socket.close();
                 return;
             }
+
+            if (server.hasClient(clientId.trim())) {
+                sendMessage("SYSTEM|SERVER|" + clientId + "|ERROR: ID already taken");
+                socket.close();
+                return;
+            }
             //register client on a server
             server.addClient(clientId, this);
 

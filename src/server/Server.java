@@ -158,4 +158,7 @@ public class Server {
             }
         }
     }
+    public boolean hasClient(String clientId) {
+        return clients.containsKey(clientId);
+    }
 }
