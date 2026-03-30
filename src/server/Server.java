@@ -161,4 +161,9 @@ public class Server {
     public boolean hasClient(String clientId) {
         return clients.containsKey(clientId);
     }
+    // for tests
+    public void clearClients() {
+        clients.clear();
+        coordinatorId = null;
+    }
 }
