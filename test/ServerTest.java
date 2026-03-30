@@ -1,6 +1,5 @@
 import command.*;
 import org.junit.jupiter.api.Test;
-import server.ClientHandler;
 import server.Server;
 import coordinator.CoordinatorManager;
 
@@ -12,9 +11,9 @@ class CommandFactoryTest {
     void createsListCommand() {
         CommandFactory factory = new CommandFactory(Server.getInstance());
 
-        String raw = "LIST|Alice|null|list";
+        String raw = "LIST|Anna|null|list";
 
-        Command command = factory.createCommand(raw, null, "Alice");
+        Command command = factory.createCommand(raw, null, "Anna");
 
         assertTrue(command instanceof ListCommand);
     }
@@ -23,9 +22,9 @@ class CommandFactoryTest {
     void createsPrivateCommand() {
         CommandFactory factory = new CommandFactory(Server.getInstance());
 
-        String raw = "PRIVATE|Alice|Bob|Hello";
+        String raw = "PRIVATE|Anna|Kateryna|Hello";
 
-        Command command = factory.createCommand(raw, null, "Alice");
+        Command command = factory.createCommand(raw, null, "Anna");
 
         assertTrue(command instanceof PrivateCommand);
     }
