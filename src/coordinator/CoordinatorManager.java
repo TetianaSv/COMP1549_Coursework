@@ -35,17 +35,10 @@ public class CoordinatorManager {
         scheduler.scheduleAtFixedRate(() -> {
             // Send PING to each client
             server.pingAllClients();
-            // Check timeouts / Перевіряємо таймаути
+            // Check timeouts
             server.checkClientTimeouts(TIMEOUT);
         }, PING_INTERVAL, PING_INTERVAL, TimeUnit.SECONDS);
 
         Logger.getInstance().log("Ping started every " + PING_INTERVAL + " seconds");
     }
-
-//    // Stops the ping scheduler
-//    public void stopPing() {
-//        scheduler.shutdown();
-//        Logger.getInstance().log("Ping stopped");
-//    }
-
 }

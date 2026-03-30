@@ -21,7 +21,7 @@ public class ListCommand implements Command{
         String coordinatorId = server.getCoordinatorId();
         // Send member list back to requester
         requester.sendMessage(
-                "SYSTEM|" + coordinatorId + "|" + clientId + "|" + server.getMembersList()
+                "COORDINATOR|" + coordinatorId + "|" + clientId + "|" + server.getMembersList()
         );
     }
 }

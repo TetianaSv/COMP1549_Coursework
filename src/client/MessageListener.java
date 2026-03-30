@@ -52,6 +52,8 @@ public class MessageListener implements Runnable {
             String from = parts[1];
             String text = parts[3];
 
+            text = text.replace("\\n", "\n");
+
             switch (type) {
                 case "BROADCAST":
                     // Message to everyone
@@ -77,6 +79,10 @@ public class MessageListener implements Runnable {
                     } catch (IOException e) {
                         Logger.getInstance().log("Cannot send PONG");
                     }
+                    break;
+                case "COORDINATOR":
+                    //Coordinator gives list of members
+                    System.out.println("\n[COORDINATOR] " + from + ":\n" + text);
                     break;
 
                 default:

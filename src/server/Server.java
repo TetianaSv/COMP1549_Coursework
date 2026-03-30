@@ -18,6 +18,10 @@ public class Server {
 
     private Server() {}
 
+    public static void main(String[] args) {
+        Server.getInstance().start();
+    }
+
     public static Server getInstance() {
         if (instance == null) {
             instance = new Server();
@@ -114,7 +118,7 @@ public class Server {
             String id = entry.getKey();
             ClientHandler handler = entry.getValue();
 
-            sb.append(" | - ").append(id)
+            sb.append("\\n- ").append(id)
                     .append(" ").append(handler.getClientIp())
                     .append(":").append(handler.getClientPort());
 
@@ -127,10 +131,6 @@ public class Server {
 
     public String getCoordinatorId() {
         return coordinatorId;
-    }
-
-    public static void main(String[] args) {
-        Server.getInstance().start();
     }
 
     // Send PING to all clients
