@@ -9,19 +9,22 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import coordinator.CoordinatorManager;
 
+//main Server class
 public class Server {
 
-    private static final int PORT = 1234;
+    private static final int PORT = 1234; //Defines the port
     private static Server instance;
-    private final Map<String, ClientHandler> clients = new ConcurrentHashMap<>();
+    private final Map<String, ClientHandler> clients = new ConcurrentHashMap<>(); //Stores connected clients
     private String coordinatorId = null;
 
-    private Server() {}
+    private Server() {} //Singlton pattern - only one Server exist
 
+    //entry point
     public static void main(String[] args) {
         Server.getInstance().start();
     }
 
+    //returns one instance of the Server
     public static Server getInstance() {
         if (instance == null) {
             instance = new Server();
@@ -29,18 +32,19 @@ public class Server {
         return instance;
     }
 
+    // start the Server
     public void start() {
         Logger.getInstance().log("Server started on port" + PORT);
         CoordinatorManager.getInstance(this).startPing();
 
         // Start coordinator ping
-        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {  //creates a server socket
             while (true) {
-                Socket socket = serverSocket.accept();
-                ClientHandler handler = new ClientHandler (socket, this);
-                new Thread(handler).start();
+                Socket socket = serverSocket.accept(); //wait for the clients
+                ClientHandler handler = new ClientHandler (socket, this); //creates a handler to manage communication
+                new Thread(handler).start(); //starts the handler in a separate thread
             }
-        } catch (IOException e) {
+        } catch (IOException e) {    //Catches I/O errors
             Logger.getInstance().log("System error: " + e.getMessage());
         }
     }
@@ -75,7 +79,6 @@ public class Server {
     }
 
     //Choose new coordinator
-    //fault tolerance
     private void electNewCoordinator() {
         if (clients.isEmpty()) {
             coordinatorId = null;
@@ -83,7 +86,7 @@ public class Server {
             return;
         }
 
-        //First client in list became a coordinator
+        //select one client as the new coordinator
         String newCoordinatorId = clients.keySet().iterator().next();
         coordinatorId = newCoordinatorId;
 
@@ -92,7 +95,7 @@ public class Server {
         Logger.getInstance().log("New coordinator: " + newCoordinatorId);
     }
 
-    //Send a message everyone except sender
+    //send a message everyone except sender
     public void broadcast(String rawMessage, String excludeId) {
         for (Map.Entry<String, ClientHandler> entry : clients.entrySet()) {
             if (!entry.getKey().equals(excludeId)) {
@@ -107,7 +110,7 @@ public class Server {
         if (handler != null) {
             handler.sendMessage(rawMessage);
         } else {
-            Logger.getInstance().log("Client " + toId + "not found");
+            Logger.getInstance().log("Client " + toId + " not found");
         }
     }
 
@@ -131,7 +134,7 @@ public class Server {
 
     public String getCoordinatorId() {
         return coordinatorId;
-    }
+    }  //Returns the ID of the current coordinator
 
     // Send PING to all clients
     public void pingAllClients() {
@@ -142,12 +145,11 @@ public class Server {
         }
     }
 
-    // Check if any client timed out
+    // Check each client and remove if it timed out
     public void checkClientTimeouts(int timeoutSeconds) {
         long now = System.currentTimeMillis();
         long timeoutMs = timeoutSeconds * 1000L;
 
-        // collect timed out clients first
         for (Map.Entry<String, ClientHandler> entry : clients.entrySet()) {
             ClientHandler handler = entry.getValue();
             long timeSinceLastPong = now - handler.getLastPongTime();
@@ -158,10 +160,13 @@ public class Server {
             }
         }
     }
+
+    //Checks whether a client with the given ID exists.
     public boolean hasClient(String clientId) {
         return clients.containsKey(clientId);
     }
-    // for tests
+
+    //for tests
     public void clearClients() {
         clients.clear();
         coordinatorId = null;

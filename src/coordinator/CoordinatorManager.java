@@ -16,20 +16,22 @@ public class CoordinatorManager {
     private final Server server;
     private final ScheduledExecutorService scheduler;
 
-    //Singleton instance
     private static CoordinatorManager instance;
 
+    // Private constructor for Singleton, initializes scheduler and server reference
     private CoordinatorManager(Server server) {
         this.server = server;
         this.scheduler = Executors.newSingleThreadScheduledExecutor();
     }
 
+    //the single shared CoordinatorManager instance
     public static CoordinatorManager getInstance(Server server) {
         if (instance == null) {
             instance = new CoordinatorManager(server);
         }
         return instance;
     }
+
     // Starts periodic ping to all clients
     public void startPing() {
         scheduler.scheduleAtFixedRate(() -> {

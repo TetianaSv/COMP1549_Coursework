@@ -18,14 +18,15 @@ public class ClientHandler implements Runnable {
     private String clientId;
     private volatile long lastPongTime = System.currentTimeMillis();
 
+    //Constructor: initializes handler
     public ClientHandler (Socket socket, Server server) {
         this.socket = socket;
         this.server = server;
         this.commandFactory = new CommandFactory(server);
     }
 
+    // Constructor: initializes handler
     @Override
-
     public void run() {
         try {
             //Initialize input/output stream
@@ -40,6 +41,7 @@ public class ClientHandler implements Runnable {
                 return;
             }
 
+            //check for uniq ID
             if (server.hasClient(clientId.trim())) {
                 sendMessage("SYSTEM|SERVER|" + clientId + "|ERROR: ID already taken");
                 socket.close();
@@ -60,7 +62,7 @@ public class ClientHandler implements Runnable {
             disconnect();
         }
     }
-    // Routes message to correct command
+    //Parses incoming message and routes it to the appropriate command
     private void handleMessage(String rawMessage) {
 
         if (rawMessage.startsWith("PONG")) {
@@ -72,7 +74,7 @@ public class ClientHandler implements Runnable {
         command.execute();
     }
 
-    // Sends a raw message string to this client
+    // Sends a raw message to this client
     public void sendMessage(String rawMessage) {
         try {
             writer.write(rawMessage + "\n");
@@ -82,23 +84,27 @@ public class ClientHandler implements Runnable {
                     "Failed to send to: " + clientId);
         }
     }
+    //Returns client's IP address
     public String getClientIp() {
             return socket.getInetAddress().getHostAddress();
     }
 
+    //Returns client's port number
     public int getClientPort() {
         return socket.getPort();
     }
 
-    // Called when PONG received
+    //Updates last received PONG timestamp
     public void updatePongTime() {
         lastPongTime = System.currentTimeMillis();
     }
+
+    // Returns last time PONG was received from client
     public long getLastPongTime() {
         return lastPongTime;
     }
 
-    // Cleanly disconnects the client
+    //Safely disconnects client
     private void disconnect() {
         try {
             if (clientId != null) {

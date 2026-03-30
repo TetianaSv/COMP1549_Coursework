@@ -3,15 +3,18 @@ package command;
 import server.ClientHandler;
 import server.Server;
 
-// Creates the correct command based on message type
+//Creates the correct command based on message type
 public class CommandFactory {
     private final Server server;
 
+    //Constructor: injects server dependency into factory
     public CommandFactory(Server server) {
         this.server = server;
     }
+
+    //Creates Command implementation based on raw message
     public Command createCommand(String rawMessage, ClientHandler handler, String clientId) {
-        // Expected format: TYPE|FROM|TO|TEXT
+        //expected format: TYPE|FROM|TO|TEXT
         String[] parts = rawMessage.split("\\|", 4);
 
         if (parts.length < 4) {

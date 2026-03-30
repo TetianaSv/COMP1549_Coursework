@@ -3,7 +3,7 @@ package command;
 import server.ClientHandler;
 import server.Server;
 
-// Returns list of all members
+//returns list of all members
 public class ListCommand implements Command{
 
     private final Server server;

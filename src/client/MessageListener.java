@@ -12,12 +12,14 @@ public class MessageListener implements Runnable {
     private final String clientId;
     private BufferedWriter writer;
 
+    //Constructor: initializes listener
     public MessageListener(Socket socket, String clientId, BufferedWriter writer) {
         this.socket = socket;
         this.clientId = clientId;
         this.writer = writer;
     }
 
+    // Main listener loop
     @Override
     public void run() {
         try {
@@ -32,15 +34,15 @@ public class MessageListener implements Runnable {
                 displayMessage(rawMessage);
             }
         } catch (IOException e) {
-            // Connection was closed — normal when /quit is used
+            //Connection was closed
             Logger.getInstance().log(
                     "Disconnected from server"
             );
         }
     }
-        // Parses and displays message in a readable format
+        //Parses and displays message in a readable format
         private void displayMessage (String rawMessage) {
-            // Expected format: TYPE|FROM|TO|TEXT
+            //expected format: TYPE|FROM|TO|TEXT
             String[] parts = rawMessage.split("\\|", 4);
 
             if (parts.length < 4) {
@@ -80,8 +82,9 @@ public class MessageListener implements Runnable {
                         Logger.getInstance().log("Cannot send PONG");
                     }
                     break;
+
                 case "COORDINATOR":
-                    //Coordinator gives list of members
+                    //list of members
                     System.out.println("\n[COORDINATOR] " + from + ":\n" + text);
                     break;
 

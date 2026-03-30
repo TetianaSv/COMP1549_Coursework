@@ -17,12 +17,14 @@ public class Client {
     private BufferedWriter writer;
     private boolean running = true;
 
+    //Constructor: initializes client identity and server connection details
     public Client(String clientId, String serverIp, int serverPort) {
         this.clientId = clientId;
         this.serverIp = serverIp;
         this.serverPort = serverPort;
     }
 
+    //starts client: connects to server, launches listener and input handling
     public void start() {
         try {
             // Connect to server
@@ -52,8 +54,8 @@ public class Client {
     private void handleUserInput() {
         Scanner scanner = new Scanner(System.in);
 
-        while (running && scanner.hasNextLine()) {
-            String input = scanner.nextLine().trim();
+        while (running && scanner.hasNextLine()) {   //loop until client stops or input ends
+            String input = scanner.nextLine().trim();   //read and trim user input
 
             if (input.isEmpty()) continue;
 
@@ -67,7 +69,7 @@ public class Client {
                 sendRaw("LIST|" + clientId + "|SERVER|list");
 
             } else if (input.startsWith("/msg ")) {
-                // Private message: /msg TargetID text
+                // Private message: /msg ClientID text
                 String[] parts = input.split(" ", 3);
                 if (parts.length < 3) {
                     System.out.println("Usage /msg <ID> <text>");
@@ -82,6 +84,8 @@ public class Client {
                 sendRaw("BROADCAST|" + clientId + "|null|" + input);
             }
         }
+        //close scanner after loop ends
+        scanner.close();
     }
 
     // Sends a raw formatted message to server
@@ -95,7 +99,7 @@ public class Client {
         }
     }
 
-    // Prints available commands to user
+    //Prints available commands to user
     private void printHelp() {
         System.out.println("/list           — show all members");
         System.out.println("/msg <ID> <text> — private message");
@@ -103,6 +107,7 @@ public class Client {
         System.out.println("<text>          — broadcast to all");
     }
 
+    //disconnect clients
     private void disconnect() {
         running = false;
         try {
@@ -112,7 +117,7 @@ public class Client {
         }
     }
 
-    // Entry point — accepts args: clientId [serverIp] [port]
+    //Entry point
     public static void main(String[] args) {
         String id = args.length > 0 ? args[0] : "Client1";
         String ip = args.length > 1 ? args[1] : "localhost";
