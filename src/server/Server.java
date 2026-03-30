@@ -75,7 +75,7 @@ public class Server {
     private void electNewCoordinator() {
         if (clients.isEmpty()) {
             coordinatorId = null;
-            Logger.getInstance().log("Group is empty, there is new coordinator");
+            Logger.getInstance().log("Group is empty");
             return;
         }
 
